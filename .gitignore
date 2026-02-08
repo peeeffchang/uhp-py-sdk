@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / dll files
+__pycache__/
+*.pyc
+*.pyd
+*.so
+
+# Environments
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.vscode/
+.idea/
+
+# Editors
+*.swp
+*~
+.DS_Store
+
+# OS generated files
+.Trash/
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+.coverage
+.pytest_cache
+*.geminiignore
+.git-note-temp
