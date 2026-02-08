@@ -1,0 +1,8 @@
+{
+"track_id": "implement_core_uhp_data_models_20260208",
+"type": "feature",
+"status": "new",
+"created_at": "2026-02-08T20:48:00Z",
+"updated_at": "2026-02-08T20:48:00Z",
+"description": "Implement Core UHP Data Models using Pydantic v2"
+}
