@@ -14,6 +14,27 @@ This SDK provides a robust and compliant interface for the Universal Hiring Prot
 *   **Structured Error Handling:** Machine-readable error messages for graceful recovery by agents, with custom exception classes.
 *   **Practical Example Implementations:** Demonstrations of how to use the SDK for various scenarios, including a candidate agent, an employer agent reviewing anonymized profiles, and a privacy violation scenario.
 
+## Core Components Overview
+
+The UHP Python SDK is structured around several core components:
+
+### Models
+
+| Model File | Description |
+|---|---|
+| `application.py` | Defines the Application model, representing a candidate's submission for a job with details like status, IDs, and submission date. |
+| `candidate.py` | Defines the CandidateProfile model, encapsulating a candidate's personal information, skills, and work preferences. |
+| `capability.py` | Defines the CapabilityDescriptor model, providing a structure for describing specific functionalities or capabilities within the UHP system. |
+| `consent.py` | Defines the Consent model, which records and tracks a user's explicit permissions regarding data usage within the protocol. |
+| `job.py` | Defines the Job model, detailing job-related information such as title, description, salary range, and remote work options. |
+
+### State Machines
+
+| State Machine File |
+|---|
+| `application.py` |
+| `consent.py` |
+
 ## Installation
 
 To install the UHP Python SDK and its dependencies, first ensure you have Python (3.x recommended) and `pip` installed. Then, navigate to the project root directory and run:
