@@ -1,10 +1,17 @@
-from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional
+from pydantic import BaseModel, Field
+from typing import Any, Dict, List
 
-class CapabilityDescriptor(BaseModel):
-    model_config = ConfigDict(frozen=True, extra='forbid')
+class Capability(BaseModel):
+    """
+    Represents a UHP capability that can be discovered by agents.
+    """
+    id: str = Field(..., description="A unique identifier for the capability.")
+    description: str = Field(..., description="A human-readable description of the capability's purpose and functionality.")
+    input_schema: Dict[str, Any] = Field(..., description="JSON schema for the input parameters of the capability's operations.")
+    output_schema: Dict[str, Any] = Field(..., description="JSON schema for the expected output of the capability's operations.")
+    examples: List[Dict[str, Any]] = Field(default_factory=list, description="Practical examples demonstrating how an agent can invoke and interact with the capability.")
 
-    capability_id: str = Field(..., description="Unique identifier for the capability.")
-    name: str = Field(..., description="A human-readable name for the capability.")
-    description: Optional[str] = Field(None, description="A detailed description of what the capability entails.")
-    version: str = Field(..., description="The version of the capability descriptor.")
+    model_config = {
+        "frozen": True,  # Make instances immutable
+        "extra": "forbid" # Forbid extra fields to enforce strict schema
+    }
