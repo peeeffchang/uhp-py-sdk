@@ -48,8 +48,7 @@ def demonstrate_privacy_violation():
     )
     purpose = "share_with_third_party"
     try:
-        if not assert_purpose_allowed(denied_consent, purpose):
-            raise PrivacyViolation("candidate_data", f"purpose '{purpose}' not allowed with DENIED consent")
+        assert_purpose_allowed(denied_consent, purpose)
     except PrivacyViolation as e:
         print(f"Privacy Violation Caught: {e.message}")
         print("Successfully prevented data usage for unapproved purpose.")

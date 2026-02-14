@@ -15,6 +15,8 @@ from uhp.models.job import Job
 
 from uhp.privacy.visibility import filter_visible_fields
 from uhp.privacy.purpose import assert_purpose_allowed
+from uhp.errors import PrivacyViolation
+from datetime import datetime
 
 
 def test_filter_visible_fields_public_job():
@@ -114,7 +116,8 @@ def test_assert_purpose_allowed_granted_consent():
         actor_id="cand789",
         target_id="job456",
         state=ConsentState.GRANTED,
-        granted_at="2026-01-01T12:00:00Z"
+        purpose=["process_application"],
+        granted_at=datetime(2026, 1, 1, 12, 0, 0)
     )
     assert assert_purpose_allowed(consent, "process_application") is True
 
@@ -125,6 +128,7 @@ def test_assert_purpose_allowed_denied_consent():
         actor_id="cand789",
         target_id="job456",
         state=ConsentState.DENIED,
-        granted_at="2026-01-01T12:00:00Z"
+        granted_at=datetime(2026, 1, 1, 12, 0, 0)
     )
-    assert assert_purpose_allowed(consent, "process_application") is False
+    with pytest.raises(PrivacyViolation, match="Consent 'con123' is not granted"):
+        assert_purpose_allowed(consent, "process_application")

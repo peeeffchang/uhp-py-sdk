@@ -62,3 +62,18 @@ def test_consent_immutability():
     consent = Consent(**consent_data)
     with pytest.raises(ValidationError): # Expect ValidationError for Pydantic v2 frozen models
         consent.state = "REVOKED"
+
+def test_consent_creation_with_purpose():
+    """
+    Test that a Consent model can be created with the new 'purpose' field.
+    """
+    consent_data = {
+        "consent_id": "con_789",
+        "actor_id": "cand_abc",
+        "target_id": "job_def",
+        "state": "GRANTED",
+        "purpose": ["ANALYTICS", "CONTACT"],
+        "granted_at": datetime(2024, 1, 1, 12, 0, 0)
+    }
+    consent = Consent(**consent_data)
+    assert consent.purpose == ["ANALYTICS", "CONTACT"]
