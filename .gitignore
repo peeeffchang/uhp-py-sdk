@@ -33,3 +33,7 @@ build/
 .pytest_cache
 *.geminiignore
 .git-note-temp
+
+# Gemini specific files
+DESIGN.md
+GEMINI.md
