@@ -5,39 +5,48 @@ import os
 # Add the project root to sys.path for local testing
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 
-from uhp.models.application import Application
 from uhp.enums.application_state import ApplicationState
 from uhp.state_machines.application import ApplicationStateMachine
+from uhp.errors import InvalidStateTransitionError
+from uhp.enums.intent import IntentType
 
 
-def test_application_initial_state_is_draft():
-    # An application should start in DRAFT state if not specified, or if specified explicitly
-    app = Application(
-        application_id="app123",
-        job_id="job456",
-        candidate_id="cand789",
-        status=ApplicationState.DRAFT,
-        submission_date="2026-01-01T12:00:00Z"
-    )
-    assert app.status == ApplicationState.DRAFT
+def test_application_state_machine_initial_state():
+    sm = ApplicationStateMachine()
+    assert sm.current_state == ApplicationState.DRAFT
 
-def test_application_can_transition_from_draft_to_submitted():
-    app = Application(
-        application_id="app123",
-        job_id="job456",
-        candidate_id="cand789",
-        status=ApplicationState.DRAFT,
-        submission_date="2026-01-01T12:00:00Z"
-    )
-    assert ApplicationStateMachine.can_transition(app.status, ApplicationState.SUBMITTED) is True
+def test_application_state_machine_apply_for_job():
+    sm = ApplicationStateMachine()
+    sm.apply_for_job()
+    assert sm.current_state == ApplicationState.SUBMITTED
 
-def test_application_cannot_transition_from_submitted_to_draft():
-    app = Application(
-        application_id="app123",
-        job_id="job456",
-        candidate_id="cand789",
-        status=ApplicationState.SUBMITTED,
-        submission_date="2026-01-01T12:00:00Z"
-    )
-    assert ApplicationStateMachine.can_transition(app.status, ApplicationState.DRAFT) is False
+def test_application_state_machine_withdraw_application_from_submitted():
+    sm = ApplicationStateMachine()
+    sm.apply_for_job() # Transition to SUBMITTED
+    sm.withdraw_application()
+    assert sm.current_state == ApplicationState.WITHDRAWN
 
+def test_application_state_machine_cannot_apply_for_job_from_submitted():
+    sm = ApplicationStateMachine()
+    sm.apply_for_job() # Transition to SUBMITTED
+    with pytest.raises(InvalidStateTransitionError) as excinfo:
+        sm.apply_for_job() # Attempt to apply again
+    assert excinfo.value.current_state == ApplicationState.SUBMITTED
+    assert excinfo.value.intended_action == IntentType.APPLY_FOR_JOB
+
+def test_application_state_machine_cannot_withdraw_application_from_withdrawn():
+    sm = ApplicationStateMachine()
+    sm.apply_for_job() # Transition to SUBMITTED
+    sm.withdraw_application() # Transition to WITHDRAWN
+    with pytest.raises(InvalidStateTransitionError) as excinfo:
+        sm.withdraw_application() # Attempt to withdraw again
+    assert excinfo.value.current_state == ApplicationState.WITHDRAWN
+    assert excinfo.value.intended_action == IntentType.WITHDRAW_APPLICATION
+
+def test_application_state_machine_cannot_withdraw_application_from_rejected():
+    # Simulate a rejected state - need a way to set initial state for testing
+    sm = ApplicationStateMachine(current_state=ApplicationState.REJECTED)
+    with pytest.raises(InvalidStateTransitionError) as excinfo:
+        sm.withdraw_application()
+    assert excinfo.value.current_state == ApplicationState.REJECTED
+    assert excinfo.value.intended_action == IntentType.WITHDRAW_APPLICATION

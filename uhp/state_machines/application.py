@@ -1,20 +1,37 @@
 from uhp.enums.application_state import ApplicationState
-from typing import Dict, Set
+from uhp.enums.intent import IntentType
+from uhp.state_machines.base import UhpStateMachine
 
-class ApplicationStateMachine:
-    _VALID_TRANSITIONS: Dict[ApplicationState, Set[ApplicationState]] = {
-        ApplicationState.DRAFT: {ApplicationState.SUBMITTED},
-        ApplicationState.SUBMITTED: {ApplicationState.SCREENING, ApplicationState.REVIEW, ApplicationState.ACCEPTED, ApplicationState.REJECTED, ApplicationState.WITHDRAWN},
-        ApplicationState.SCREENING: {ApplicationState.REVIEW, ApplicationState.REJECTED, ApplicationState.WITHDRAWN},
-        ApplicationState.REVIEW: {ApplicationState.ACCEPTED, ApplicationState.REJECTED, ApplicationState.WITHDRAWN},
-        ApplicationState.ACCEPTED: {ApplicationState.WITHDRAWN},
-        ApplicationState.REJECTED: set(),
-        ApplicationState.WITHDRAWN: set()
-    }
+class ApplicationStateMachine(UhpStateMachine):
+    """
+    Manages the state transitions for a UHP Application.
+    Inherits from UhpStateMachine to enforce valid transitions based on defined actions.
+    """
+    def __init__(self, current_state: ApplicationState = ApplicationState.DRAFT):
+        super().__init__()
+        self.current_state = current_state
+        self.transition_map = {
+            ApplicationState.DRAFT: [IntentType.APPLY_FOR_JOB],
+            ApplicationState.SUBMITTED: [IntentType.WITHDRAW_APPLICATION],
+            ApplicationState.SCREENING: [IntentType.WITHDRAW_APPLICATION],
+            ApplicationState.REVIEW: [IntentType.WITHDRAW_APPLICATION],
+            ApplicationState.ACCEPTED: [IntentType.WITHDRAW_APPLICATION],
+            ApplicationState.REJECTED: [],
+            ApplicationState.WITHDRAWN: []
+        }
 
-    @staticmethod
-    def can_transition(current_state: ApplicationState, new_state: ApplicationState) -> bool:
+    def apply_for_job(self):
         """
-        Checks if a transition from current_state to new_state is valid.
+        Attempts to apply for a job.
+        Valid only from DRAFT state. Transitions to SUBMITTED.
         """
-        return new_state in ApplicationStateMachine._VALID_TRANSITIONS.get(current_state, set())
+        self._enforce_transition(IntentType.APPLY_FOR_JOB)
+        self.current_state = ApplicationState.SUBMITTED
+
+    def withdraw_application(self):
+        """
+        Attempts to withdraw an application.
+        Valid from SUBMITTED, SCREENING, REVIEW, ACCEPTED states. Transitions to WITHDRAWN.
+        """
+        self._enforce_transition(IntentType.WITHDRAW_APPLICATION)
+        self.current_state = ApplicationState.WITHDRAWN

@@ -18,6 +18,20 @@ class InvalidStateTransition(UHPError):
         self.message = f"{message} Cannot transition from {current_state} to {new_state}."
         super().__init__(self.message)
 
+class InvalidStateTransitionError(UHPError):
+    """
+    Exception raised for invalid state transitions based on an action.
+    Attributes:
+        current_state -- current state of the object
+        intended_action -- the action that was attempted
+        message -- explanation of the error
+    """
+    def __init__(self, current_state: str, intended_action: str, message: str = "Action not allowed."):
+        self.current_state = current_state
+        self.intended_action = intended_action
+        self.message = f"{message} Cannot perform {intended_action} from state {current_state}."
+        super().__init__(self.message)
+
 class PrivacyViolation(UHPError):
     """
     Exception raised for privacy violations.

@@ -6,7 +6,7 @@ from datetime import datetime
 # Add the project root to sys.path for local testing
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from uhp.errors import InvalidStateTransition, PrivacyViolation, ConsentExpired
+from uhp.errors import InvalidStateTransition, PrivacyViolation, ConsentExpired, InvalidStateTransitionError
 
 
 def test_invalid_state_transition_error_instantiation():
@@ -14,6 +14,12 @@ def test_invalid_state_transition_error_instantiation():
     assert error.current_state == "DRAFT"
     assert error.new_state == "SUBMITTED"
     assert "Invalid transition. Cannot transition from DRAFT to SUBMITTED." in str(error)
+
+def test_invalid_state_transition_error_instantiation_with_action():
+    error = InvalidStateTransitionError("DRAFT", "SUBMIT", "Action not allowed.")
+    assert error.current_state == "DRAFT"
+    assert error.intended_action == "SUBMIT"
+    assert "Action not allowed. Cannot perform SUBMIT from state DRAFT." in str(error)
 
 def test_privacy_violation_error_instantiation():
     error = PrivacyViolation("email", "access_without_consent")
